@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pothole Detection</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 20px;
+    }
+
+    input {
+      margin: 15px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #22c55e;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+
+    .box {
+      background: #1e293b;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    img {
+      max-width: 500px;
+      border-radius: 10px;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 10px;
+      color: yellow;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Pothole & Crack Detection</h1>
+
+<input type="file" id="fileInput" accept="image/*">
+<br>
+<button onclick="upload()">Upload & Detect</button>
+
+<p id="loading" class="loading">Processing...</p>
+
+<div class="container">
+  <div class="box">
+    <h3>Input</h3>
+    <img id="inputImage">
+  </div>
+
+  <div class="box">
+    <h3>Output</h3>
+    <img id="outputImage">
+  </div>
+</div>
+
+<script>
+async function upload() {
+  const file = document.getElementById("fileInput").files[0];
+
+  if (!file) {
+    alert("Please select an image");
+    return;
+  }
+
+  document.getElementById("loading").style.display = "block";
+
+  // Show input preview
+  document.getElementById("inputImage").src = URL.createObjectURL(file);
+
+  let formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    let response = await fetch("http://localhost:8000/predict", {
+      method: "POST",
+      body: formData
+    });
+
+    let data = await response.json();
+
+    document.getElementById("outputImage").src =
+      "http://localhost:8000/" + data.output;
+
+  } catch (error) {
+    console.error(error);
+    alert("Error connecting to backend");
+  }
+
+  document.getElementById("loading").style.display = "none";
+}
+</script>
+
+</body>
+</html>
